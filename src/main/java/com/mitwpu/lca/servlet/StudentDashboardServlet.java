@@ -1,5 +1,8 @@
 package com.mitwpu.lca.servlet;
 
+import java.io.PrintWriter;
+import java.util.List;
+
 import com.mitwpu.lca.dao.ApplicationDAO;
 import com.mitwpu.lca.dao.InternshipDAO;
 import com.mitwpu.lca.dao.StudentDAO;
@@ -7,14 +10,13 @@ import com.mitwpu.lca.model.Application;
 import com.mitwpu.lca.model.Internship;
 import com.mitwpu.lca.model.Student;
 import com.mitwpu.lca.model.User;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import java.io.PrintWriter;
-import java.util.List;
 
 @WebServlet("/student/dashboard-stats")
 public class StudentDashboardServlet extends HttpServlet {
@@ -22,6 +24,7 @@ public class StudentDashboardServlet extends HttpServlet {
     private final ApplicationDAO applicationDAO = new ApplicationDAO();
     private final InternshipDAO internshipDAO = new InternshipDAO();
 
+    @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
@@ -29,7 +32,7 @@ public class StudentDashboardServlet extends HttpServlet {
         HttpSession session = request.getSession(false);
         User user = session != null ? (User) session.getAttribute("user") : null;
 
-        if (user == null || !user.getRole().equals("STUDENT")) {
+        if (user == null || user.getRole() == null || !"STUDENT".equals(user.getRole())) {
             sendJsonResponse(response, false, "Unauthorized", 403);
             return;
         }
@@ -112,12 +115,12 @@ public class StudentDashboardServlet extends HttpServlet {
 
             json.append("}");
 
-            PrintWriter out = response.getWriter();
-            out.write(json.toString());
-            out.flush();
-            out.close();
+            try (PrintWriter out = response.getWriter()) {
+                out.write(json.toString());
+                out.flush();
+            }
             System.out.println("DEBUG: Response sent successfully");
-        } catch (Exception e) {
+        } catch (java.io.IOException e) {
             System.out.println("DEBUG: Exception occurred: " + e.getClass().getName() + " - " + e.getMessage());
             e.printStackTrace();
             sendJsonResponse(response, false, "Error: " + e.getMessage(), 500);
@@ -127,17 +130,12 @@ public class StudentDashboardServlet extends HttpServlet {
     private void sendJsonResponse(HttpServletResponse response, boolean success, String message, int status) {
         response.setStatus(status);
         response.setContentType("application/json");
-        try {
-            PrintWriter out = response.getWriter();
+        try (PrintWriter out = response.getWriter()) {
             out.write("{\"success\":" + success + ",\"message\":\"" + escapeJson(message) + "\"}");
             out.flush();
-        } catch (Exception e) {
+        } catch (java.io.IOException e) {
             e.printStackTrace();
         }
-    }
-
-    private void sendJsonResponse(HttpServletResponse response, boolean success, String message) {
-        sendJsonResponse(response, success, message, 200);
     }
 
     private String escapeJson(String str) {

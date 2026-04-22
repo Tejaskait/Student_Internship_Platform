@@ -39,7 +39,7 @@
             </ul>
             <div class="nav-user">
                 <div class="user-menu">
-                    <span class="user-name"><%= user.getName() %></span>
+                    <span class="user-name"><%= user.getFullName() %></span>
                     <form action="<%= request.getContextPath() %>/logout" method="POST" style="display:inline;">
                         <button type="submit" class="logout-btn">
                             <i class="fas fa-sign-out-alt"></i> Logout
@@ -52,7 +52,7 @@
 
     <div class="hero-section">
         <div class="hero-content">
-            <h1>Welcome back, <%= user.getName() %>! 👋</h1>
+            <h1>Welcome back, <%= user.getFullName() %>! 👋</h1>
             <p>Track your internship journey, explore opportunities, and manage your applications all in one place.</p>
         </div>
         <div class="hero-bg-pattern"></div>

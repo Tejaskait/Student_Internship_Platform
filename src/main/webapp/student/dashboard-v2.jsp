@@ -19,7 +19,7 @@
     <nav class="navbar">
         <div class="logo">🎓 InternshipHub</div>
         <div class="user-info">
-            <span>Welcome, <%= user.getName() %></span>
+            <span>Welcome, <%= user.getFullName() %></span>
             <form action="<%= request.getContextPath() %>/logout" method="POST" style="display:inline;">
                 <button type="submit">Logout</button>
             </form>
@@ -27,7 +27,7 @@
     </nav>
 
     <div class="welcome-banner">
-        <h2>Welcome back, <%= user.getName() %>! 👋</h2>
+        <h2>Welcome back, <%= user.getFullName() %>! 👋</h2>
         <p>Explore exciting internship opportunities, track your applications, and ace your exams all in one place.</p>
     </div>
 
