@@ -23,8 +23,7 @@
 
     // Get student's applications
     ApplicationDAO applicationDAO = new ApplicationDAO();
-    List<Application> applications = applicationDAO.getApplicationsByStudent(student.getStudentId());
-    
+    List<Application> applications = applicationDAO.getApplicationsFromMainTable(student.getStudentId());    
     InternshipDAO internshipDAO = new InternshipDAO();
     CompanyDAO companyDAO = new CompanyDAO();
     
@@ -451,7 +450,7 @@
                         <div class="application-details">
                             <div class="detail-item">
                                 <span class="detail-label">Applied On</span>
-                                <span class="detail-value"><%= app.getAppliedDate().format(dateFormatter) %></span>
+                                <span class="detail-value"><%= app.getAppliedDate() != null ? app.getAppliedDate().format(dateFormatter) : "N/A" %></span>
                             </div>
                             <div class="detail-item">
                                 <span class="detail-label">Location</span>
@@ -470,12 +469,13 @@
                         <!-- Cover Letter -->
                         <div class="cover-letter-section">
                             <label class="cover-letter-label">Your Cover Letter</label>
-                            <p class="cover-letter-text"><%= app.getCoverLetter() %></p>
-                        </div>
+						<p class="cover-letter-text">
+						    <%= app.getCoverLetter() != null ? app.getCoverLetter() : "Not provided" %>
+						</p>    
+						 </div>
 
                         <!-- Feedback (if available) -->
-                        <% if (app.getFeedback() != null && !app.getFeedback().isEmpty()) { %>
-                            <div class="feedback-section show">
+						<% if (app.getFeedback() != null && !app.getFeedback().isEmpty()) { %>                            <div class="feedback-section show">
                                 <label class="feedback-label">📝 Feedback from <%= companyName %></label>
                                 <p class="feedback-text"><%= app.getFeedback() %></p>
                                 <% if (app.getRating() != null) { %>

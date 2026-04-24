@@ -400,4 +400,59 @@ public class ApplicationDAO {
         }
         return 0;
     }
+    
+    public ResultSet getApplicationsForStudent(int studentId) {
+        try {
+            Connection conn = DBConnection.getConnection();
+
+            String sql = "SELECT a.*, i.job_title, c.company_name " +
+                         "FROM applications a " +
+                         "JOIN internships i ON a.internship_id = i.internship_id " +
+                         "JOIN companies c ON a.company_id = c.company_id " +
+                         "WHERE a.student_id = ?";
+
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setInt(1, studentId);
+
+            return ps.executeQuery();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
+    public List<Application> getApplicationsFromMainTable(int studentId) {
+        List<Application> list = new ArrayList<>();
+
+        try (Connection conn = DBConnection.getConnection()) {
+
+            String sql = "SELECT * FROM applications WHERE student_id = ?";
+
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setInt(1, studentId);
+
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Application app = new Application();
+                app.setApplicationId(rs.getInt("application_id"));
+                app.setStudentId(rs.getInt("student_id"));
+                app.setInternshipId(rs.getInt("internship_id"));
+                app.setStatus(rs.getString("status"));
+
+                // optional (if column exists)
+                try {
+                    app.setAppliedDate(rs.getDate("created_at").toLocalDate());
+                } catch (Exception ignored) {}
+
+                list.add(app);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
 }
