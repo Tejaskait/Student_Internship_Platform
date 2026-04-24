@@ -5,125 +5,188 @@
     <title>Register</title>
 
     <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
         body {
-            font-family: Arial;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea, #764ba2);
+            height: 100vh;
             display: flex;
-            justify-content: center;
             align-items: center;
-            min-height: 100vh;
+            justify-content: center;
         }
 
-        .box {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
+        .container {
+            background: #fff;
+            padding: 35px;
+            border-radius: 12px;
             width: 380px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            animation: fadeIn 0.5s ease-in-out;
         }
 
-        h2 {
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header {
             text-align: center;
-            margin-bottom: 10px;
+            margin-bottom: 25px;
         }
 
-        h4 {
-            margin-top: 15px;
-            color: #444;
+        .header h2 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            font-size: 14px;
+            color: #777;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        label {
+            font-size: 13px;
+            color: #555;
+            display: block;
+            margin-bottom: 5px;
         }
 
         input {
             width: 100%;
-            padding: 10px;
-            margin: 8px 0;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            transition: 0.3s;
+            font-size: 14px;
         }
 
-        button {
+        input:focus {
+            border-color: #667eea;
+            outline: none;
+            box-shadow: 0 0 5px rgba(102,126,234,0.3);
+        }
+
+        .toggle {
+            position: absolute;
+            right: 10px;
+            top: 38px;
+            font-size: 12px;
+            cursor: pointer;
+            color: #667eea;
+        }
+
+        .btn {
             width: 100%;
-            padding: 10px;
-            background: #667eea;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
             border: none;
+            border-radius: 6px;
+            font-weight: bold;
             cursor: pointer;
-            margin-top: 10px;
+            transition: 0.3s;
         }
 
-        button:hover {
-            opacity: 0.9;
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 5px 15px rgba(102,126,234,0.4);
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+
+        .footer a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
         }
 
         .error {
-            color: red;
-            margin-bottom: 10px;
-        }
-
-        .success {
-            color: green;
-            margin-bottom: 10px;
-        }
-
-        p {
-            text-align: center;
-            margin-top: 10px;
-        }
-
-        a {
-            color: #667eea;
-            text-decoration: none;
+            background: #ffe5e5;
+            color: #c33;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            font-size: 13px;
         }
     </style>
+
+    <script>
+        function togglePassword(id) {
+            var input = document.getElementById(id);
+            input.type = input.type === "password" ? "text" : "password";
+        }
+    </script>
 </head>
 
 <body>
 
-<div class="box">
-    <h2>Register as Student</h2>
+<div class="container">
+
+    <div class="header">
+        <h2>Create Account</h2>
+        <p>Join Internship Hub</p>
+    </div>
 
     <%
         String error = request.getParameter("error");
-        String success = request.getParameter("success");
-
         if (error != null) {
     %>
-        <p class="error"><%= error %></p>
-    <%
-        }
-
-        if (success != null) {
-    %>
-        <p class="success"><%= success %></p>
+        <div class="error"><%= error %></div>
     <%
         }
     %>
 
     <form method="post" action="<%= request.getContextPath() %>/register">
 
-        <!-- USER DETAILS -->
-        <h4>User Details</h4>
+        <div class="form-group">
+            <label>Full Name</label>
+            <input type="text" name="name" placeholder="Enter your name" required>
+        </div>
 
-        <input type="text" name="name" placeholder="Full Name" required>
-        <input type="email" name="email" placeholder="Email" required>
-        <input type="text" name="phone" placeholder="Phone Number">
+        <div class="form-group">
+            <label>Phone Number</label>
+            <input type="text" name="phone" placeholder="Enter phone number">
+        </div>
 
-        <input type="password" name="password" placeholder="Password" required>
-        <input type="password" name="confirmPassword" placeholder="Confirm Password" required>
+        <div class="form-group">
+            <label>Email Address</label>
+            <input type="email" name="email" placeholder="Enter email" required>
+        </div>
 
-        <!-- STUDENT DETAILS -->
-        <h4>Student Details</h4>
+        <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="password" name="password" required>
+            <span class="toggle" onclick="togglePassword('password')">Show</span>
+        </div>
 
-        <input type="text" name="roll" placeholder="Roll Number" required>
-        <input type="text" name="deptCode" placeholder="Department Code (CSE)" required>
-        <input type="text" name="deptName" placeholder="Department Name" required>
+        <div class="form-group">
+            <label>Confirm Password</label>
+            <input type="password" id="confirmPassword" name="confirmPassword" required>
+            <span class="toggle" onclick="togglePassword('confirmPassword')">Show</span>
+        </div>
 
-        <input type="number" step="0.01" name="cgpa" placeholder="CGPA (e.g. 8.5)" required>
-        <input type="number" name="semester" placeholder="Semester (e.g. 6)" required>
-
-        <button type="submit">Register</button>
+        <button type="submit" class="btn">Register</button>
     </form>
 
-    <p>
+    <div class="footer">
         Already have an account? 
         <a href="<%= request.getContextPath() %>/login.jsp">Login</a>
-    </p>
+    </div>
+
 </div>
 
 </body>
