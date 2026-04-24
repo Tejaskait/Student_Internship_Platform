@@ -198,7 +198,10 @@
         </form>
 
         <div class="signup-link">
-            Need access? Contact your administrator for an account.
+           <p>
+    Don't have an account? 
+    <a href="<%= request.getContextPath() %>/register.jsp">Register</a>
+</p>
         </div>
     </div>
 </body>

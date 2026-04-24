@@ -53,6 +53,90 @@ public class UserDAO {
         return null;
     }
     
+ // REGISTER STUDENT (users + students table)
+    public boolean registerStudent(User user,
+                                   String rollNumber,
+                                   String deptCode,
+                                   String deptName,
+                                   double cgpa,
+                                   int semester) {
+
+        Connection conn = null;
+        PreparedStatement psUser = null;
+        PreparedStatement psStudent = null;
+        ResultSet rs = null;
+
+        try {
+            conn = DBConnection.getConnection();
+            conn.setAutoCommit(false); // transaction start
+
+            // 1️⃣ Insert into users table
+            String userSql = "INSERT INTO users (email, password, full_name, role, phone_number, status) " +
+                             "VALUES (?, ?, ?, 'STUDENT', ?, 'ACTIVE')";
+
+            psUser = conn.prepareStatement(userSql, Statement.RETURN_GENERATED_KEYS);
+
+            psUser.setString(1, user.getEmail());
+            psUser.setString(2, user.getPassword());
+            psUser.setString(3, user.getFullName());
+            psUser.setString(4, user.getPhoneNumber());
+
+            int rows = psUser.executeUpdate();
+
+            if (rows == 0) {
+                conn.rollback();
+                return false;
+            }
+
+            // 2️⃣ Get user_id
+            rs = psUser.getGeneratedKeys();
+            int userId = 0;
+
+            if (rs.next()) {
+                userId = rs.getInt(1);
+            } else {
+                conn.rollback();
+                return false;
+            }
+
+            // 3️⃣ Insert into students table
+            String studentSql = "INSERT INTO students (user_id, roll_number, department_code, department_name, cgpa, semester) " +
+                                "VALUES (?, ?, ?, ?, ?, ?)";
+
+            psStudent = conn.prepareStatement(studentSql);
+
+            psStudent.setInt(1, userId);
+            psStudent.setString(2, rollNumber);
+            psStudent.setString(3, deptCode);
+            psStudent.setString(4, deptName);
+            psStudent.setDouble(5, cgpa);
+            psStudent.setInt(6, semester);
+
+            psStudent.executeUpdate();
+
+            conn.commit(); // ✅ success
+            return true;
+
+        } catch (Exception e) {
+            try {
+                if (conn != null) conn.rollback();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+            e.printStackTrace();
+            return false;
+
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (psUser != null) psUser.close();
+                if (psStudent != null) psStudent.close();
+                if (conn != null) conn.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
     /**
      * Get user by ID
      * @param userId User ID
