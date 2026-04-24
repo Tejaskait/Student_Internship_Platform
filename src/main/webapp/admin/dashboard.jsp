@@ -352,7 +352,7 @@
             <!-- Active Internships -->
             <div class="card">
                 <div class="card-icon">💼</div>
-                <div class="card-title">Active Internships</div>
+                <div class="card-title">Active Internship</div>
                 <div class="card-value">28</div>
                 <div class="card-description">Internship positions currently open</div>
                 <a href="#internships" class="card-action">View Internships →</a>
