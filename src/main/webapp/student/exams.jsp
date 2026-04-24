@@ -282,7 +282,7 @@
                         <span>📅 Available: All days</span>
                     </div>
                 </div>
-                <button class="start-exam-btn" onclick="startExamMode(this, {examId: 1, examName: 'Java Programming Assessment', duration: 60})">
+                <button class="start-exam-btn" onclick="window.location.href='take-exam.jsp'">
                     Start Exam
                 </button>
             </div>
@@ -316,6 +316,7 @@
             <h2>No Exams Available</h2>
             <p>There are currently no exams available for you. Check back later for new assessments.</p>
         </div>
+        <div id="examContainer" style="margin-top:20px;"></div>
     </main>
 
     <!-- Debug Info Panel -->
@@ -337,6 +338,29 @@
     <script src="<%= request.getContextPath() %>/js/navbar.js"></script>
 
     <script>
+    const questions = [
+        {
+            id: 1,
+            question: "What is JVM?",
+            options: ["Java Virtual Machine", "Java Variable Method", "Joint Virtual Model", "None"],
+            answer: 0
+        },
+        {
+            id: 2,
+            question: "Which language is used for web?",
+            options: ["Python", "JavaScript", "C++", "Java"],
+            answer: 1
+        },
+        {
+            id: 3,
+            question: "HTML stands for?",
+            options: ["Hyper Trainer Marking Language", "Hyper Text Markup Language", "Hyper Text Marketing Language", "None"],
+            answer: 1
+        }
+    ];
+
+    let userAnswers = {};
+    let currentQuestion = 0;
         /**
          * Start exam mode with secure proctoring
          */
@@ -350,31 +374,32 @@
 
                 // Configure exam security settings
                 const securityConfig = {
-                    examTimeMinutes: examConfig.duration || 60,
-                    maxViolations: 3,
-                    enableCamera: true,
-                    enableMicrophone: true,
-                    enableTabTracking: true,
-                    enableScreenSecurity: true,
-                    autoSubmitOnViolations: true,
-                    warningThreshold: 2
-                };
+				    examTimeMinutes: examConfig.duration || 60,
+				    maxViolations: 10,
+				    enableCamera: false,
+				    enableMicrophone: false,
+				    enableTabTracking: false,
+				    enableScreenSecurity: false,
+				    autoSubmitOnViolations: false,
+				    warningThreshold: 5
+				};
 
-                // Initialize exam mode
-                const exam = await ExamModeInitializer.startExamMode(securityConfig);
+          
+                let exam = null;
 
-                if (exam) {
-                    // Store exam config for reference
-                    window.currentExamConfig = examConfig;
-
-                    // Show success message
-                    console.log('✅ Exam mode activated successfully');
-
-                    // Load actual exam content (placeholder for now)
-                    loadExamContent(examConfig);
-                } else {
-                    throw new Error('Failed to initialize exam mode');
+                try {
+                    exam = await Promise.race([
+                        ExamModeInitializer.startExamMode(securityConfig),
+                        new Promise((resolve) => setTimeout(() => resolve(null), 4000))
+                    ]);
+                } catch (e) {
+                    console.warn("⚠️ Init error:", e.message);
                 }
+
+                // ALWAYS continue (no blocking)
+                window.currentExamConfig = examConfig;
+                loadExamContent(examConfig);
+                button.textContent = 'Exam Started';
             } catch (error) {
                 console.error('❌ Exam initialization failed:', error);
 
@@ -392,8 +417,8 @@
          */
         function loadExamContent(examConfig) {
             // This would be replaced with actual exam content loading
-            alert('Exam loaded: ' + examConfig.examName + '\n\nYour exam is secure and monitored.\n\nFull exam questions would load here.');
-            
+			document.getElementById("examContainer").style.display = "block";
+			renderQuestion();
             // For demo, show violation log after 5 seconds
             setTimeout(() => {
                 const log = ExamModeInitializer.getViolationLog();
@@ -420,8 +445,7 @@
                         <strong>Exam State Debug Info</strong><br>
                         Violations: ${state.violationCount}/${state.maxViolations}<br>
                         Active: ${state.isExamActive}<br>
-                        Time: ${new Date().toLocaleTimeString()}<br>
-                        Modules: ${Object.keys(window.currentExam.modules).join(', ')}
+                        Time: <%= new java.text.SimpleDateFormat("HH:mm:ss").format(new java.util.Date()) %><br>
                     `;
                 }
             }
@@ -456,6 +480,53 @@
                     '<strong>⚠️ Browser Not Supported</strong>Your browser does not support camera/microphone access. Please use a modern browser like Chrome, Firefox, Safari, or Edge.';
             }
         }
+        
+       
+
+            container.innerHTML = `
+                <h3>Q${currentQuestion + 1}: ${q.question}</h3>
+                ${optionsHTML}
+                <br>
+                <button onclick="prevQuestion()">Prev</button>
+                <button onclick="nextQuestion()">Next</button>
+                <button onclick="submitExam()">Submit</button>
+            `;
+        }
+
+        document.addEventListener("change", (e) => {
+            if (e.target.name === "answer") {
+                userAnswers[questions[currentQuestion].id] = parseInt(e.target.value);
+            }
+        });
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                renderQuestion();
+            }
+        }
+
+        function prevQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                renderQuestion();
+            }
+        }
+
+        function submitExam() {
+            let score = 0;
+
+            questions.forEach(q => {
+                if (userAnswers[q.id] === q.answer) {
+                    score++;
+                }
+            });
+
+            alert("Your Score: " + score + "/" + questions.length);
+
+            const violations = ExamModeInitializer.getViolationLog();
+            console.log("Violations:", violations);
+        }
 
         // Listen for exam mode activation
         window.addEventListener('exam-mode-activated', (e) => {
@@ -469,6 +540,11 @@
                 e.returnValue = 'Your exam is in progress. Are you sure you want to leave?';
             }
         });
+        
+        window.addEventListener('exam-violation', (e) => {
+            console.log("🚨 VIOLATION:", e.detail);
+        });
     </script>
+    
 </body>
 </html>

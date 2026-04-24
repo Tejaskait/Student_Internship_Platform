@@ -313,7 +313,7 @@ public class ApplicationDAO {
      * @return Count of applications with specified status
      */
     public int getApplicationCountByStatus(int internshipId, String status) {
-        String sql = "SELECT COUNT(*) as count FROM student_applications " +
+        String sql = "SELECT COUNT(*) as count FROM applications " +
                      "WHERE internship_id = ? AND status = ?";
         
         try (Connection conn = DBConnection.getConnection();

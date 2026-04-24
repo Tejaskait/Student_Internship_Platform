@@ -1,4 +1,4 @@
-/**
+setInterval/**
  * Timer Module
  * Manages exam countdown and auto-submission on time expiry
  */
@@ -34,16 +34,18 @@ class TimerModule {
     const startTime = Date.now();
     const endTime = startTime + this.remainingMs;
 
-    this.timerInterval = setInterval(() => {
-      const now = Date.now();
-      const remainingMs = endTime - now;
+    this.timerInterval = 	setInterval(() => {
+	    const state = ExamModeInitializer.getExamState();
 
-      if (remainingMs <= 0) {
-        this.handleTimeExpired();
-      } else {
-        this.updateTimerDisplay(remainingMs);
-      }
-    }, 1000); // Update every second
+	    document.getElementById("violationBox").innerText =
+	        "Violations: " + state.violationCount;
+
+	    if (state.violationCount >= 5) {
+	        alert("Too many violations. Exam submitted.");
+	        submitExam();
+	    }
+
+	}, 1000); // Update every second
 
     console.log('✅ Timer Started');
   }
