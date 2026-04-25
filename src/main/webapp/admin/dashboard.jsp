@@ -197,54 +197,72 @@
             border-bottom: 2px solid #667eea;
         }
 
-        .table {
-            width: 100%;
-            border-collapse: collapse;
+        /* ===== START: CSS Substitution (Glass-morphism table styles - NO SLIDING) ===== */
+        .table-container {
+            overflow-x: auto;
         }
 
-        .table thead {
-            background: #f8f9fa;
+        .table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 10px; /* Space between transparent rows */
+            margin-top: -10px;
         }
 
         .table th {
-            color: #2c3e50;
-            padding: 1rem;
+            color: rgba(255, 255, 255, 0.7); /* Light text for dark background */
+            padding: 1rem 1.5rem;
             text-align: left;
             font-weight: 600;
-            border-bottom: 2px solid #e9ecef;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 1.5px;
+        }
+
+        .table tbody tr {
+            /* Semi-transparent background */
+            background-color: rgba(255, 255, 255, 0.1); 
+            backdrop-filter: blur(5px); /* Frosty glass effect */
+            -webkit-backdrop-filter: blur(5px);
+            transition: background-color 0.3s ease; /* Only transition color, not position */
+        }
+
+        .table tbody tr:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            /* transform removed to stop the sliding effect */
         }
 
         .table td {
-            padding: 1rem;
-            border-bottom: 1px solid #e9ecef;
+            padding: 1.2rem 1.5rem;
+            vertical-align: middle;
+            color: white; /* Contrast against the gradient */
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif; /* Cleaner font stack */
         }
 
-        .table tr:hover {
-            background: #f8f9fa;
+        /* Border rounding for the transparent slabs */
+        .table td:first-child { 
+            border-left: 1px solid rgba(255, 255, 255, 0.1); 
+            border-radius: 12px 0 0 12px; 
+        }
+        .table td:last-child { 
+            border-right: 1px solid rgba(255, 255, 255, 0.1); 
+            border-radius: 0 12px 12px 0; 
         }
 
+        /* Badge adjustments for transparency */
         .badge {
-            display: inline-block;
-            padding: 0.3rem 0.8rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: bold;
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-weight: 800;
+            letter-spacing: 0.5px;
         }
 
-        .badge-success {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .badge-warning {
-            background: #fff3cd;
-            color: #856404;
-        }
-
-        .badge-danger {
-            background: #f8d7da;
-            color: #721c24;
-        }
+        .badge-success { background: rgba(46, 213, 115, 0.2); color: #2ed573; border: 1px solid rgba(46, 213, 115, 0.3); }
+        .badge-warning { background: rgba(255, 165, 2, 0.2); color: #ffa502; border: 1px solid rgba(255, 165, 2, 0.3); }
+        /* ===== END: CSS Substitution ===== */
 
         .action-btn {
             padding: 0.4rem 0.8rem;
@@ -300,6 +318,7 @@
             font-size: 1rem;
             opacity: 0.9;
         }
+        
 
         @media (max-width: 768px) {
             .sidebar {
@@ -377,46 +396,44 @@
             </div>
         </div>
 
-        <!-- Recent Activities Section -->
-        <div class="section">
-            <h2 class="section-title">📊 Recent Activities</h2>
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Activity</th>
-                        <th>User</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>2026-04-20</td>
-                        <td>New company registered</td>
-                        <td>Google Inc.</td>
-                        <td><span class="badge badge-success">Completed</span></td>
-                    </tr>
-                    <tr>
-                        <td>2026-04-19</td>
-                        <td>Internship application submitted</td>
-                        <td>John Doe</td>
-                        <td><span class="badge badge-warning">Pending</span></td>
-                    </tr>
-                    <tr>
-                        <td>2026-04-18</td>
-                        <td>Student registered</td>
-                        <td>Jane Smith</td>
-                        <td><span class="badge badge-success">Completed</span></td>
-                    </tr>
-                    <tr>
-                        <td>2026-04-17</td>
-                        <td>Exam created</td>
-                        <td>Data Structures</td>
-                        <td><span class="badge badge-success">Completed</span></td>
-                    </tr>
-                </tbody>
-            </table>
+        <!-- ===== START: HTML Substitution (Glass-morphism Recent Activities) ===== -->
+        <div class="section" style="background: transparent; box-shadow: none;">
+            <h2 class="section-title" style="color: white; border-bottom: 2px solid rgba(255,255,255,0.2);">📊 Recent Activities</h2>
+            
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Activity</th>
+                            <th>User</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="opacity: 0.8;">2026-04-20</td>
+                            <td style="font-weight: 500;">New company registered</td>
+                            <td>Google Inc.</td>
+                            <td><span class="badge badge-success">COMPLETED</span></td>
+                         </tr>
+                         <tr>
+                            <td style="opacity: 0.8;">2026-04-19</td>
+                            <td style="font-weight: 500;">Internship application</td>
+                            <td>John Doe</td>
+                            <td><span class="badge badge-warning">PENDING</span></td>
+                         </tr>
+                         <tr>
+                            <td style="opacity: 0.8;">2026-04-18</td>
+                            <td style="font-weight: 500;">Student registered</td>
+                            <td>Jane Smith</td>
+                            <td><span class="badge badge-success">COMPLETED</span></td>
+                         </tr>
+                    </tbody>
+                 </table>
+            </div>
         </div>
+        <!-- ===== END: HTML Substitution ===== -->
 
         <!-- Quick Actions -->
         <div class="section">
