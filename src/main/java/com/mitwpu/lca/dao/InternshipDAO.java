@@ -3,6 +3,7 @@ package com.mitwpu.lca.dao;
 import com.mitwpu.lca.model.Internship;
 import com.mitwpu.lca.util.DBConnection;
 import java.sql.*;
+import java.sql.Date;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -257,5 +258,31 @@ public class InternshipDAO {
         java.sql.Timestamp updatedTs = rs.getTimestamp("updated_at");
         if (updatedTs != null) internship.setUpdatedAt(updatedTs.toLocalDateTime());
         return internship;
+    }
+    
+    
+    /**
+     * Check if internship deadline is passed
+     */
+    public boolean isDeadlinePassed(int internshipId) {
+        String sql = "SELECT application_deadline FROM internships WHERE internship_id = ?";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, internshipId);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                Date deadline = rs.getDate("application_deadline");
+                return deadline.before(new java.util.Date());
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Error checking deadline: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return true; // safe fallback
     }
 }

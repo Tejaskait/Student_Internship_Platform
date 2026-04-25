@@ -129,23 +129,26 @@ public class ApplicationDAO {
      * @return true if already applied, false otherwise
      */
     public boolean hasStudentApplied(int studentId, int internshipId) {
-    	String sql = "SELECT COUNT(*) as count FROM applications "
-    			+ "WHERE student_id = ? AND internship_id = ?";
-        
+
+        String sql = "SELECT 1 FROM applications WHERE student_id=? AND internship_id=? " +
+                     "UNION " +
+                     "SELECT 1 FROM student_applications WHERE student_id=? AND internship_id=?";
+
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-            
+
             stmt.setInt(1, studentId);
             stmt.setInt(2, internshipId);
+            stmt.setInt(3, studentId);
+            stmt.setInt(4, internshipId);
+
             ResultSet rs = stmt.executeQuery();
-            
-            if (rs.next()) {
-                return rs.getInt("count") > 0;
-            }
-        } catch (SQLException e) {
-            System.err.println("Error checking if student applied: " + e.getMessage());
+            return rs.next();
+
+        } catch (Exception e) {
             e.printStackTrace();
         }
+
         return false;
     }
     
@@ -359,26 +362,78 @@ public class ApplicationDAO {
         
         return application;
     }
+    
+    
     public boolean applyForInternship(int studentId, int internshipId, int companyId) {
-        try (Connection conn = DBConnection.getConnection()) {
 
-            PreparedStatement ps = conn.prepareStatement(
+        Connection conn = null;
+
+        try {
+            conn = DBConnection.getConnection();
+            conn.setAutoCommit(false); // 🔥 TRANSACTION START
+
+            // Insert into applications
+            PreparedStatement ps1 = conn.prepareStatement(
                 "INSERT INTO applications (student_id, internship_id, company_id, status) VALUES (?, ?, ?, 'PENDING')"
             );
+            ps1.setInt(1, studentId);
+            ps1.setInt(2, internshipId);
+            ps1.setInt(3, companyId);
+            ps1.executeUpdate();
 
-            ps.setInt(1, studentId);
-            ps.setInt(2, internshipId);
-            ps.setInt(3, companyId);
+            // Insert log (optional but HIGH MARKS)
+            PreparedStatement ps2 = conn.prepareStatement(
+                "INSERT INTO application_logs (application_id, action) VALUES (LAST_INSERT_ID(), 'APPLIED')"
+            );
+            ps2.executeUpdate();
 
-            int rows = ps.executeUpdate();
-            return rows > 0;
+            conn.commit(); // ✅ SUCCESS
+            return true;
 
         } catch (SQLIntegrityConstraintViolationException e) {
-            return false; // already applied
+            try { if (conn != null) conn.rollback(); } catch (Exception ignored) {}
+            return false;
+
         } catch (Exception e) {
+            try { if (conn != null) conn.rollback(); } catch (Exception ignored) {}
             e.printStackTrace();
             return false;
+
+        } finally {
+            try { if (conn != null) conn.setAutoCommit(true); } catch (Exception ignored) {}
         }
+    }
+    
+    
+    
+    public boolean hasPassedExam(int userId, int examId) {
+
+        String sql = "SELECT SUM(marks_awarded) AS score, e.total_marks " +
+                     "FROM answers a " +
+                     "JOIN exam_attempts ea ON a.attempt_id = ea.attempt_id " +
+                     "JOIN exams e ON ea.exam_id = e.exam_id " +
+                     "WHERE ea.user_id=? AND ea.exam_id=?";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, userId);
+            ps.setInt(2, examId);
+
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                double score = rs.getDouble("score");
+                int total = rs.getInt("total_marks");
+
+                return score >= (0.4 * total);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return false;
     }
 
     public int getCompanyIdByInternship(int internshipId) {

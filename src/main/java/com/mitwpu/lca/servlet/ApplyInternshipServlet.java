@@ -1,6 +1,7 @@
 package com.mitwpu.lca.servlet;
 
 import com.mitwpu.lca.dao.ApplicationDAO;
+import com.mitwpu.lca.dao.InternshipDAO;
 import com.mitwpu.lca.dao.StudentDAO;
 import com.mitwpu.lca.model.Student;
 import com.mitwpu.lca.model.User;
@@ -80,6 +81,23 @@ public class ApplyInternshipServlet extends HttpServlet {
             } else {
                 response.getWriter().write("{\"success\":false,\"message\":\"Already applied or failed\"}");
             }
+            
+         // DAO objects
+            ApplicationDAO appDao = new ApplicationDAO();
+            InternshipDAO internshipDAO = new InternshipDAO();
+
+            // ❌ 1. Cannot apply twice
+            if (appDao.hasStudentApplied(studentId, internshipId)) {
+                response.getWriter().write("{\"success\":false,\"message\":\"Already applied\"}");
+                return;
+            }
+
+            // ❌ 2. Cannot apply after deadline
+            if (internshipDAO.isDeadlinePassed(internshipId)) {
+                response.getWriter().write("{\"success\":false,\"message\":\"Deadline passed\"}");
+                return;
+            }
+            
 
         } catch (NumberFormatException e) {
             response.getWriter().write("{\"success\":false,\"message\":\"Invalid input\"}");
@@ -88,4 +106,6 @@ public class ApplyInternshipServlet extends HttpServlet {
             response.getWriter().write("{\"success\":false,\"message\":\"Server error occurred\"}");
         }
     }
+    
+    
 }
