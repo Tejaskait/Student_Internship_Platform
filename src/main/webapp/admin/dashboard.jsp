@@ -383,7 +383,7 @@
                 <div class="card-title">Total Students</div>
                 <div class="card-value">245</div>
                 <div class="card-description">Active students in the system</div>
-                <a href="#users" class="card-action">Manage Students →</a>
+                <a href="students.jsp" class="card-action">Manage Students →</a>
             </div>
 
             <!-- Pending Applications -->
